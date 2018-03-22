@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>
+Прогноз
+</title>
+<script>
+window.onload = function()
+{
+	var request = new XMLHttpRequest();
+	request.open("POST", "/", true);
+	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	request.send('type=get');//Несколько параметров разделяются & ('param=1&ajax=1')
+	request.onreadystatechange = function() 
+	{  
+		// если запрос закончил выполняться
+		if (request.readyState == 4) 
+		{ 
+			// если статус 200 (ОК) - выдать ответ пользователю
+			if(request.status == 200) 
+			{
+				var obj, dbParam, xmlhttp, myObj, x, txt = "";
+				
+				var jsonTrim = request.responseText.replace("/^\s*",'');
+				
+				myObj = JSON.parse(jsonTrim);
+				
+				console.log(myObj);
+				
+				txt += "<table border='1'>"
+				for (x in myObj) {
+					txt += "<tr><td>" + myObj[x].DT + "</td><td>" + myObj[x].A + "</td><td>" + myObj[x].N + "</td></tr>";
+				}
+				txt += "</table>"        
+				document.getElementById("demo").innerHTML = txt;
+			
+				/*var data = request.responseText;
+				var lineData = data.split('\n');
+				var len = parseInt(lineData[0])+1;
+				// Заполнение таблицы данными
+				var tbody = document.getElementById("data");
+				for(var i = 1; i < len; i++)
+				{
+					var cellData = lineData[i].split(';');
+					var row = document.createElement("tr");
+					for(var j = 0; j < cellData.length; j++)
+					{
+						var td1 = document.createElement("td");
+						td1.appendChild(document.createTextNode(cellData[j]));
+						row.appendChild(td1);
+					}
+					tbody.appendChild(row);
+				}
+				// Добавление полей ввода данных
+				var row = document.createElement("tr");
+				var headData = lineData[1].split(';');	// Получение заголовков таблицы
+				for(var j = 0; j < headData.length; j++)
+				{
+					var td1 = document.createElement("td");
+					var input1 = document.createElement("input");
+					input1.setAttribute("id", headData[j]);
+					input1.setAttribute("placeholder", headData[j]);
+					input1.setAttribute("style","width :" + 115 + "px");
+					
+					input1.setAttribute("value", "");
+					input1.oninput = Pattern;
+					
+					td1.appendChild(input1);
+					row.appendChild(td1);
+				}
+				// Кнопка добавления данных
+				var td1 = document.createElement("td");
+				var input1 = document.createElement("input");
+				input1.setAttribute("type", "button");
+				input1.setAttribute("style","width :" + 115 + "px");
+				input1.setAttribute("value", "Добавить");
+				input1.onclick = function(e){
+					
+					for(var j = 0; j < headData.length; j++){
+						if( isNaN(parseFloat( document.getElementById(headData[j]).value ))){
+							alert("Некорректные данные");
+							return;
+						}
+					}
+					request.open("POST", "/", true);
+					request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+					request.send('type=add&'+
+						'Date='+document.getElementById(headData[0]).value+
+						'&D1='+document.getElementById(headData[1]).value+
+						'&D2='+document.getElementById(headData[2]).value+
+						'&D3='+document.getElementById(headData[3]).value+
+						'&D4='+document.getElementById(headData[4]).value+
+						'&D5='+document.getElementById(headData[5]).value+
+						'&D6='+document.getElementById(headData[6]).value+
+						'&D7='+document.getElementById(headData[7]).value+
+						'&D8='+document.getElementById(headData[8]).value
+					);
+					// Удаление предыдущих данных
+					for (; document.getElementById('data').getElementsByTagName('tr').length > 0; ) {
+						document.getElementById('data').deleteRow(0);
+					}
+					for (; document.getElementById('forecast').getElementsByTagName('tr').length > 0; ) {
+						document.getElementById('forecast').deleteRow(0);
+					}
+
+				};
+				td1.appendChild(input1);
+				row.appendChild(td1);
+				
+				
+				tbody.appendChild(row);
+				
+				// Заполнение таблицы прогноза +20
+				var tbody = document.getElementById("forecast");
+				for(var i = len; i < lineData.length; i++)
+				{
+					var cellData = lineData[i].split(';');
+					var row = document.createElement("tr");
+					for(var j = 0; j < cellData.length; j++)
+					{
+						var td1 = document.createElement("td");
+						td1.appendChild(document.createTextNode(cellData[j]));
+						row.appendChild(td1);
+					}
+					tbody.appendChild(row);
+				}*/
+			}
+			else 
+			{
+				alert("Ошибка: "+ request.status);
+			}
+		}
+	}
+}
+function Pattern(e){
+	var text = this.value;
+	var retext;
+	var minus = '';
+	// Определение символа '-'
+	if(text[0] == '-'){
+		minus = '-';
+		retext = text.substr(1);
+	} else {
+		retext = text;
+	}
+	// Убираем все символы кроме запятой
+	retext = retext.replace(/[^\d,]/g, '');
+	var ind = 0;
+	for(var i = 0; i < retext.length; i++)
+	{
+		if(retext.charAt(i) == ','){
+			if(ind == 0 && i != 0){
+				ind = 1;
+			} else{
+				retext = retext.slice(0, i)+retext.slice(i+1);
+			}
+		}
+	}
+	this.value = minus+retext;
+};
+</script>
+
+<style type="text/css">
+table {
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	text-align: left;
+	border-collapse: separate;
+	border-spacing: 5px;
+	color: #000000;
+	border-radius: 20px;
+	float: bottom;
+}
+caption{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 20px;
+}
+th {
+	font-size: 10px;
+	padding: 2px;
+}
+td {
+	background: #DCDCDC;
+	padding: 4px;
+}
+
+th {
+	font-size: 10px;
+	padding: 2px;
+}
+td {
+	background: #DCDCDC;
+	width : 120px;
+	padding: 4px;
+}
+
+h3{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	margin: auto;
+}
+input{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 15px;
+}
+</style>
+</head>
+
+<body>
+	
+	<h3>Система Пересвет228</h3>
+	<table id="data">
+		<caption>Данные вахтера</caption>
+	</table>
+	
+	<p id="demo"></p>
+	
+</body>
+</html>
